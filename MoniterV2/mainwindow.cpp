@@ -5,6 +5,7 @@
 #include <QDockWidget>
 #include <QTextEdit>
 #include <QIcon>
+#include <QTableWidget>
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -20,19 +21,41 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	initTreeWidget();
 
-	QFrame *mainFrame = new QFrame(mainWidget);
+	//QFrame *mainFrame = new QFrame(mainWidget);
+	mainTableWidget = new QTableWidget(mainWidget);
+	initTableWidget();
 	hBoxLayout = new QHBoxLayout(mainWidget);
-	hBoxLayout->addWidget(mainFrame);
-	QTextEdit *te1=new QTextEdit(mainFrame);  
-	te1->setText(tr("Window1,The dock widget can be moved between docks by the user"));  
-	hBoxLayout->addWidget(dock);
-	hBoxLayout->addWidget(te1);
+	hBoxLayout->addWidget(mainTableWidget);
+	//hBoxLayout->addWidget(mainFrame);
+	//QTextEdit *te1=new QTextEdit(mainFrame);  
+	//te1->setText(tr("Window1,The dock widget can be moved between docks by the user"));  
+	//hBoxLayout->addWidget(te1);
 	mainWidget->setLayout(hBoxLayout);
 
 }
 void MainWindow::initTableWidget()
 {
+	mainTableWidget->setColumnCount(9); 
+	mainTableWidget->setRowCount(5); 
 	
+	//mainTableWidget->resizeColumnsToContents();
+	mainTableWidget->horizontalHeader()->setStretchLastSection(true);  
+	mainTableWidget->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
+	mainTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); 
+	mainTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);  
+	mainTableWidget->verticalHeader()->setVisible(false); 
+	QStringList headers; 
+	headers << QString::fromWCharArray(L"采集站名") <<QString::fromWCharArray(L"传感器数") << 
+		QString::fromWCharArray(L"雨量值") << QString::fromWCharArray(L"应力值") <<QString::fromWCharArray(L"震动值")
+		<<QString::fromWCharArray(L"倾角值")<<QString::fromWCharArray(L"温湿度值")
+		<<QString::fromWCharArray(L"状态")<<QString::fromWCharArray(L"备注"); 
+	mainTableWidget->setHorizontalHeaderLabels(headers); 
+	mainTableWidget->setItem(0, 0, new QTableWidgetItem(QString("采集站 #1"))); 
+	mainTableWidget->setItem(1, 0, new QTableWidgetItem(QString("采集站 #1"))); 
+	mainTableWidget->setItem(2, 0, new QTableWidgetItem(QString("3"))); 
+	mainTableWidget->setItem(3, 0, new QTableWidgetItem(QString("4"))); 
+	mainTableWidget->setItem(4, 0, new QTableWidgetItem(QString("5"))); 
+	mainTableWidget->setItem(0, 1, new QTableWidgetItem(tr("20100112"))); 
 }
 void MainWindow::initTreeWidget()
 {
