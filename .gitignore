@@ -1,0 +1,7 @@
+Win32/
+*.sdf
+*.opensdf
+Debug/
+Release/
+GeneratedFiles/
+obj/
