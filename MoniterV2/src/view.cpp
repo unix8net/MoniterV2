@@ -10,6 +10,16 @@ void TableView::mouseMoveEvent(QMouseEvent * event)
 	QTableView::mouseMoveEvent(event);
 }
 
+TableWidget::TableWidget(QWidget * parent)
+	:QTableWidget(parent)
+{
+}
+
+void TableWidget::mouseMoveEvent(QMouseEvent * event)
+{
+	QTableWidget::mouseMoveEvent(event);
+}
+
 
 
 TreeWidget::TreeWidget(QWidget * parent)	
@@ -23,4 +33,5 @@ TreeWidget::TreeWidget(QWidget * parent)
 	connect(this,
 		SIGNAL(customContextMenuRequested(const QPoint&)),
 		SLOT(onCustomContextMenuRequested(const QPoint&)));
+	
 }

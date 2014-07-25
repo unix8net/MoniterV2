@@ -1,11 +1,12 @@
 #include "mainwindow.h"
 #include <QHBoxLayout>
-#include "../include/view.h"
+
 #include <QFrame>
 #include <QDockWidget>
 #include <QTextEdit>
 #include <QIcon>
-#include <QTableWidget>
+//#include <QTableWidget>
+#include "modifystation.h"
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -22,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 	initTreeWidget();
 
 	//QFrame *mainFrame = new QFrame(mainWidget);
-	mainTableWidget = new QTableWidget(mainWidget);
+	mainTableWidget = new TableWidget(mainWidget);
 	initTableWidget();
 	hBoxLayout = new QHBoxLayout(mainWidget);
 	hBoxLayout->addWidget(mainTableWidget);
@@ -33,6 +34,16 @@ MainWindow::MainWindow(QWidget *parent)
 	mainWidget->setLayout(hBoxLayout);
 
 }
+
+void MainWindow::acceptFromTreeWidget(QTreeWidgetItem * item, int column)
+{
+	switch (item->type()) {
+	case TreeWidget::STATION_ADD:
+		ModifyStation *modifyStation = new ModifyStation(this);
+		modifyStation->show();
+		break;
+	}
+}
 void MainWindow::initTableWidget()
 {
 	mainTableWidget->setColumnCount(9); 
@@ -40,7 +51,7 @@ void MainWindow::initTableWidget()
 	
 	//mainTableWidget->resizeColumnsToContents();
 	mainTableWidget->horizontalHeader()->setStretchLastSection(true);  
-	mainTableWidget->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
+	//mainTableWidget->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
 	mainTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); 
 	mainTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);  
 	mainTableWidget->verticalHeader()->setVisible(false); 
@@ -64,53 +75,55 @@ void MainWindow::initTreeWidget()
 	mainDock->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);  
 	mainTreeWidget = new TreeWidget(mainDock);
 
-	QTreeWidgetItem *itemCollectionStation = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"采集站")),ItemType1);
+	QTreeWidgetItem *itemCollectionStation = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"采集站")));
 	itemCollectionStation->setIcon(0, QIcon("./img/01.png"));
-	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"采集站 #1"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"采集站 #2"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"采集站 #3"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"增加采集站"), ItemType3);
+	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"采集站 #1"), TreeWidget::STATION);
+	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"采集站 #2"), TreeWidget::STATION);
+	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"采集站 #3"), TreeWidget::STATION);
+	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"增加采集站"), TreeWidget::STATION_ADD);
 	mainTreeWidget->addTopLevelItem(itemCollectionStation);
 	itemCollectionStation->setExpanded(true);
 
 	
 
 
-	QTreeWidgetItem *itemDataDisplay = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"数据显示")),ItemType1);
+	QTreeWidgetItem *itemDataDisplay = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"数据显示")));
 	itemDataDisplay->setIcon(0, QIcon("./img/02.png"));
-	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"数据动态显示"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"数据实时波形"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"历史数据查询"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"历史数据查询"), ItemType2);
+	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"数据动态显示"), TreeWidget::DATA_DYNAMIC_DISPLAY);
+	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"数据实时波形"), TreeWidget::DATA_REALTIME_WAVE);
+	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"历史数据波形"), TreeWidget::DATA_HISTORY_WAVE);
+	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"历史数据查询"), TreeWidget::DATA_QUERY);
 	mainTreeWidget->addTopLevelItem(itemDataDisplay);
 	itemDataDisplay->setExpanded(true);
 
 
 
-	QTreeWidgetItem *itemConfig = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"系统配置")),ItemType1);
+	QTreeWidgetItem *itemConfig = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"系统配置")));
 	itemConfig->setIcon(0, QIcon("./img/03.png"));
-	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"数据来源设置"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"串口设置"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"网络设置"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"数据库设置"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"配置文件设置"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"阈值设置"), ItemType2);
+	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"数据来源设置"), TreeWidget::DATA_SOURCE);
+	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"串口设置"), TreeWidget::CFG_UART);
+	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"网络设置"), TreeWidget::CFG_NET);
+	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"数据库设置"), TreeWidget::CFG_SQL);
+	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"配置文件设置"), TreeWidget::CFG_FILE);
+	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"阈值设置"), TreeWidget::CFG_LEVEL);
 	mainTreeWidget->addTopLevelItem(itemConfig);
 
-	QTreeWidgetItem *itemAlgorithm = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"数据处理")),ItemType1);
+	QTreeWidgetItem *itemAlgorithm = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"数据处理")));
 	itemAlgorithm->setIcon(0, QIcon("./img/04.png"));
-	mainTreeWidget->addTreeLeaf(itemAlgorithm,QString::fromWCharArray(L"数据处理模型"), ItemType2);
-	mainTreeWidget->addTreeLeaf(itemAlgorithm,QString::fromWCharArray(L"数据处理算法"), ItemType2);
+	mainTreeWidget->addTreeLeaf(itemAlgorithm,QString::fromWCharArray(L"数据处理模型"), TreeWidget::ALGORITHM1);
+	mainTreeWidget->addTreeLeaf(itemAlgorithm,QString::fromWCharArray(L"数据处理算法"), TreeWidget::ALGORITHM1);
 	mainTreeWidget->addTopLevelItem(itemAlgorithm);
 
-	QTreeWidgetItem *help = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"关于与帮助")),ItemType1);
+	QTreeWidgetItem *help = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"关于与帮助")));
 	help->setIcon(0, QIcon("./img/help.png"));
-	mainTreeWidget->addTreeLeaf(help,QString::fromWCharArray(L"关于"), ItemType2);
-	mainTreeWidget->addTreeLeaf(help,QString::fromWCharArray(L"帮助"), ItemType2);
+	mainTreeWidget->addTreeLeaf(help,QString::fromWCharArray(L"关于"), TreeWidget::ABOUT);
+	mainTreeWidget->addTreeLeaf(help,QString::fromWCharArray(L"帮助"), TreeWidget::HELP);
 	mainTreeWidget->addTopLevelItem(help);
 
 	mainDock->setWidget(mainTreeWidget);  
-	addDockWidget(Qt::LeftDockWidgetArea,mainDock);  
+	addDockWidget(Qt::LeftDockWidgetArea,mainDock); 
+
+	 connect(mainTreeWidget,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(acceptFromTreeWidget(QTreeWidgetItem*,int)));
 }
 MainWindow::~MainWindow()
 {

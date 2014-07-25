@@ -3,13 +3,13 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_mainwindow.h"
-
+#include "../include/view.h"
 
 class QHBoxLayout;
 class QDockWidget;
 class TreeWidget;
 class QTreeWidgetItem;
-class QTableWidget;
+class TableWidget;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -23,10 +23,11 @@ private:
 	QHBoxLayout *hBoxLayout;
 	QDockWidget *mainDock;
 	TreeWidget *mainTreeWidget;
-	QTableWidget *mainTableWidget;
+	TableWidget *mainTableWidget;
 	void initTreeWidget();
 	void initTableWidget();
-	
+private Q_SLOTS:
+	void acceptFromTreeWidget(QTreeWidgetItem * item, int column);
 };
 
 #endif // MAINWINDOW_H

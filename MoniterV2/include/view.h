@@ -1,8 +1,10 @@
 #ifndef VIEW_H
 #define VIEW_H
 #include <QTableView>
+#include <QTableWidget>
 #include <QTreeWidget>
 #include <QMenu>
+#include <QDebug>
 class TableView:public QTableView
 {
 public:
@@ -17,18 +19,38 @@ private:
 
 
 
-static const int ItemType1 = QTreeWidgetItem::UserType;
-static const int ItemType2 = QTreeWidgetItem::UserType + 1;
-static const int ItemType3 = QTreeWidgetItem::UserType + 2;
+class TableWidget:public QTableWidget
+{
+public:
+	TableWidget(QWidget * parent=0);
+	virtual ~ TableWidget(){}
+
+protected:
+	void mouseMoveEvent(QMouseEvent * event);
+
+private:		
+};
+
+
+
+
 class TreeWidget : public QTreeWidget
 {
 	Q_OBJECT
 
 public:
+	enum ItemType
+	{
+		STATION = QTreeWidgetItem::UserType + 1, STATION_ADD,
+		DATA_QUERY,DATA_DYNAMIC_DISPLAY, DATA_REALTIME_WAVE, DATA_HISTORY_WAVE,
+		DATA_SOURCE, CFG_GLOBAL, CFG_UART, CFG_NET, CFG_SQL,CFG_FILE, CFG_RESET,CFG_LEVEL,
+		ALGORITHM1,
+		HELP, ABOUT
+
+	};
 	TreeWidget(QWidget * parent=0);
 	private slots:
 		void onCustomContextMenuRequested(const QPoint& pos) {
-			printf("hi\n");
 			QTreeWidgetItem* item = itemAt(pos);
 
 			if (item) {
@@ -38,24 +60,21 @@ public:
 
 		void showContextMenu(QTreeWidgetItem* item, const QPoint& globalPos) {
 			QMenu menu;
-
 			switch (item->type()) {
-			case ItemType1:
-				menu.addAction("This is a type 1");
+			case STATION:
+				menu.addAction("This is a STATION");
 				break;
-
-			case ItemType2:
-				menu.addAction("This is a type 2");
-				break;
+			default:break;
 			}
 
 			menu.exec(globalPos);
 		}
+
 public:
 		void addTreeLeaf(QTreeWidgetItem* item, const QString& txt, const int type){
 			
 			QTreeWidgetItem *itemLeaf = new QTreeWidgetItem(QStringList(txt),type);
-			if(type == ItemType3)
+			if(type == STATION_ADD)
 			{
 				itemLeaf->setIcon(0, QIcon("./img/07.png"));
 			}
@@ -64,5 +83,8 @@ public:
 			item->addChild(itemLeaf);
 			
 		}
+
+Q_SIGNALS:
+		void sendToMainwindow(const ItemType &type, int no);
 };
 #endif
