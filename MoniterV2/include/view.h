@@ -50,7 +50,8 @@ public:
 	};
 	TreeWidget(QWidget * parent=0);
 	private slots:
-		void onCustomContextMenuRequested(const QPoint& pos) {
+		void onCustomContextMenuRequested(const QPoint& pos) 
+		{
 			QTreeWidgetItem* item = itemAt(pos);
 
 			if (item) {
@@ -61,10 +62,11 @@ public:
 		void showContextMenu(QTreeWidgetItem* item, const QPoint& globalPos) {
 			QMenu menu;
 			switch (item->type()) {
-			case STATION:
+			case STATION: {
 				menu.addAction("This is a STATION");
 				break;
-			default:break;
+				}
+				default:break;
 			}
 
 			menu.exec(globalPos);
@@ -74,8 +76,13 @@ public:
 		void addTreeLeaf(QTreeWidgetItem* item, const QString& txt, const int type){
 			
 			QTreeWidgetItem *itemLeaf = new QTreeWidgetItem(QStringList(txt),type);
-			if(type == STATION_ADD)
-			{
+			//为每个leaf增加index，用于区分
+			if(type == STATION) {
+				itemLeaf->setData(0, Qt::UserRole, -1);
+			}else if(type == STATION_ADD) {
+				itemLeaf->setData(0, Qt::UserRole, 0);
+			}
+			if(type == STATION_ADD) {
 				itemLeaf->setIcon(0, QIcon("./img/07.png"));
 			}
 			else
@@ -85,6 +92,6 @@ public:
 		}
 
 Q_SIGNALS:
-		void sendToMainwindow(const ItemType &type, int no);
+	//	void sendToMainwindow(const ItemType &type, int no);
 };
 #endif

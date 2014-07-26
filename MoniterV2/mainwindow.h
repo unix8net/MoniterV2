@@ -21,13 +21,19 @@ public:
 private:
 	Ui::MainWindowClass ui;
 	QHBoxLayout *hBoxLayout;
-	QDockWidget *mainDock;
+	//QDockWidget *mainDock;
 	TreeWidget *mainTreeWidget;
 	TableWidget *mainTableWidget;
 	void initTreeWidget();
 	void initTableWidget();
+	void initTableWidgetData();
+	
 private Q_SLOTS:
 	void acceptFromTreeWidget(QTreeWidgetItem * item, int column);
+	void addNewTableItem();
+	void updateTableItem(int);
+
+
 };
 
 #endif // MAINWINDOW_H

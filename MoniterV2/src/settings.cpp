@@ -1,6 +1,8 @@
 #include <QSettings>
+
 #include "../include/settings.h"
 #include "../include/global.h"
+
 QSettings *Settings::softConfig = new QSettings("cfg.ini",QSettings::IniFormat);
 
 /*==================================================================    
@@ -13,16 +15,27 @@ QSettings *Settings::softConfig = new QSettings("cfg.ini",QSettings::IniFormat);
 void  Settings::initConfigFile()
 {
 	softConfig->beginGroup("Station");
-	softConfig->setValue("num", 1);
-	softConfig->endGroup();
+	
 
+	int num = (softConfig->value("num", -1).toInt()); 
+	if(num == -1){
+		softConfig->setValue("num", 0);
+	}
+	softConfig->endGroup();
+	/*
 	softConfig->beginGroup("S1");
 	softConfig->setValue("SM", 0x01);
 	softConfig->setValue("SN", "This is a demo station");
-	softConfig->endGroup();
+	softConfig->endGroup();*/
 }
 
-
+int Settings::readStationNum()
+{
+	softConfig->beginGroup("Station");
+	int value = softConfig->value("num").toInt();
+	softConfig->endGroup();
+	return value;
+}
 /*==================================================================    
  *    功能    ：   增加工作站
  *    输入参数：传感器掩码    备注
@@ -33,8 +46,7 @@ void  Settings::initConfigFile()
 void Settings::addStation(unsigned int sensorMask, const QString &note)
 {
 	softConfig->beginGroup("Station");
-	int num = (softConfig->value("num").toInt());
-	++num;
+	int num = (softConfig->value("num").toInt()); ++num;
 	softConfig->setValue("num", num);
 	softConfig->endGroup();
 
@@ -42,7 +54,7 @@ void Settings::addStation(unsigned int sensorMask, const QString &note)
 	softConfig->beginGroup(str);
 	softConfig->setValue("SM", sensorMask); // sensor mask
 	if(note.trimmed().length() == 0)
-		softConfig->setValue("SN", "-");  //sensor note
+		softConfig->setValue("SN", "X");  //sensor note
 	else
 		softConfig->setValue("SN", note);
 
@@ -57,7 +69,7 @@ void Settings::addStation(unsigned int sensorMask, const QString &note)
  *    作者    ：   
  *    日期    ：
 /*==================================================================*/
-unsigned int  Settings::readStationSensorsByIndex(int no)
+unsigned int  Settings::readMask(int no)
 {
 	QString str = "S" + QString::number(no, 10);
 	softConfig->beginGroup(str);
@@ -73,7 +85,7 @@ unsigned int  Settings::readStationSensorsByIndex(int no)
  *    作者    ：   
  *    日期    ：
 /*==================================================================*/
-int  Settings::readStationLevelByIndex(int no, int sensor)
+int  Settings::readLevel(int no, int sensor)
 {
 	QString str = "S" + QString::number(no, 10);
 	softConfig->beginGroup(str);
@@ -107,4 +119,13 @@ QString Settings::readNote(int no)
 QString Settings::readName(int no)
 {
 	return "S" + QString::number(no, 10);
+}
+
+void Settings::updateMaskAndNote(int no, unsigned int mask, QString &note)
+{
+	QString str = "S" + QString::number(no, 10);
+	softConfig->beginGroup(str);
+	softConfig->setValue("SM", mask); //sensor level
+	softConfig->setValue("SN", note);
+	softConfig->endGroup();
 }

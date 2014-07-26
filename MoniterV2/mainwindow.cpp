@@ -1,80 +1,200 @@
-#include "mainwindow.h"
 #include <QHBoxLayout>
+#include <QBrush>
 
-#include <QFrame>
-#include <QDockWidget>
-#include <QTextEdit>
-#include <QIcon>
-//#include <QTableWidget>
 #include "modifystation.h"
+#include "mainwindow.h"
+#include "../include/settings.h"
+#include "../include/global.h"
+
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
+
 	QWidget* mainWidget = new QWidget(this);
 	this->setCentralWidget(mainWidget);
-	this->resize(800, 600);
-	/*
-	setWindowFlags(Qt::Window | Qt::FramelessWindowHint
-		| Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint
-		| Qt::WindowMaximizeButtonHint);
-		*/
-	
+	setWindowState(Qt::WindowMaximized);	
+
+	//background
+	this->setAutoFillBackground(true);
+	QPalette palette;
+	palette.setColor(QPalette::Background, QColor(35,202,255));
+	this->setPalette(palette);
+
+	mainTableWidget = new TableWidget(mainWidget);
+	mainTreeWidget = new TreeWidget(mainWidget);
+	initTableWidget();
 	initTreeWidget();
 
-	//QFrame *mainFrame = new QFrame(mainWidget);
-	mainTableWidget = new TableWidget(mainWidget);
-	initTableWidget();
 	hBoxLayout = new QHBoxLayout(mainWidget);
-	hBoxLayout->addWidget(mainTableWidget);
-	//hBoxLayout->addWidget(mainFrame);
-	//QTextEdit *te1=new QTextEdit(mainFrame);  
-	//te1->setText(tr("Window1,The dock widget can be moved between docks by the user"));  
-	//hBoxLayout->addWidget(te1);
+	hBoxLayout->addWidget(mainTableWidget, 8);
+	hBoxLayout->addWidget(mainTreeWidget, 1);
 	mainWidget->setLayout(hBoxLayout);
-
 }
 
+/*==================================================================    
+ *    功能：   该函数用于接收TreeWidget的Item双击信号
+ *    输入参数：
+ *    返回值： 
+/*==================================================================*/
 void MainWindow::acceptFromTreeWidget(QTreeWidgetItem * item, int column)
 {
 	switch (item->type()) {
-	case TreeWidget::STATION_ADD:
-		ModifyStation *modifyStation = new ModifyStation(this);
-		modifyStation->show();
-		break;
-	}
+
+		case TreeWidget::STATION:{
+			
+			//获取station的编号，因为不同的Station有不同的编号
+			QString id = item->text(0);
+			int index = id.remove(0, id.lastIndexOf("#") + 1).toInt();
+			
+			ModifyStation *modifyStation = new ModifyStation(index, this);//-1
+			modifyStation->changleTitle(QString::fromWCharArray(L"更改已知采集站信息"));
+
+			//采集站修改后点击OK
+			connect(modifyStation, SIGNAL(updateStationSignal(int)), this, SLOT(updateTableItem(int)));
+			modifyStation->show();
+			break;
+		}
+
+		case TreeWidget::STATION_ADD: {
+			ModifyStation *modifyStation = new ModifyStation(this);
+			modifyStation->changleTitle(QString::fromWCharArray(L"增加新采集站信息"));
+
+			//采集站增加信息填好后点击OK
+			connect(modifyStation, SIGNAL(addNewStationSignal()), this, SLOT(addNewTableItem()));
+			modifyStation->show();
+			break;
+			}
+		}
 }
+
+/*==================================================================    
+ *    功能：   在tableWidget中增加新的行
+ *    输入参数：
+ *    返回值： 
+/*==================================================================*/
+void MainWindow::addNewTableItem()
+{
+	initTableWidgetData();
+}
+
+/*==================================================================    
+ *    功能：   更新tableWidget中的某行
+ *    输入参数：index为采集站编号，从1开始编号
+ *    返回值： 
+/*==================================================================*/
+void MainWindow::updateTableItem(int index)
+{
+	unsigned int mask = Settings::readMask(index);
+	QTableWidgetItem *item;
+	int sensors = 0;
+
+	for(int j = 2;  j  <= SENSOR_TYPES + 1; ++j) {
+		item = mainTableWidget->item(index - 1, j);
+		if(mask & 0x01) {
+			++sensors;
+			item->setBackground(QBrush(Qt::white));	
+		}else{		
+			item->setBackground(QBrush(QColor(35,202,255)));	
+			item->setText("---");
+		}
+		mask >>= 1;
+	}
+
+	//插入传感器数目
+	item = mainTableWidget->item(index - 1, 1);
+	item->setText(QString::number(sensors, 10));
+
+	//插入note
+	item = mainTableWidget->item(index - 1, 8);
+	item->setText(Settings::readNote(index));
+}
+
+/*==================================================================    
+ *    功能：   初始化tableWidget
+ *    输入参数：
+ *    返回值： 
+/*==================================================================*/
 void MainWindow::initTableWidget()
 {
 	mainTableWidget->setColumnCount(9); 
-	mainTableWidget->setRowCount(5); 
-	
-	//mainTableWidget->resizeColumnsToContents();
+	mainTableWidget->setRowCount(0); 
 	mainTableWidget->horizontalHeader()->setStretchLastSection(true);  
-	//mainTableWidget->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
 	mainTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); 
 	mainTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);  
-	mainTableWidget->verticalHeader()->setVisible(false); 
+	//mainTableWidget->verticalHeader()->setVisible(false); 
+
 	QStringList headers; 
 	headers << QString::fromWCharArray(L"采集站名") <<QString::fromWCharArray(L"传感器数") << 
-		QString::fromWCharArray(L"雨量值") << QString::fromWCharArray(L"应力值") <<QString::fromWCharArray(L"震动值")
-		<<QString::fromWCharArray(L"倾角值")<<QString::fromWCharArray(L"温湿度值")
+		QString::fromWCharArray(L"倾角值") << QString::fromWCharArray(L"深层位移") <<QString::fromWCharArray(L"浅表位移")
+		<<QString::fromWCharArray(L"雨量值")<<QString::fromWCharArray(L"应力值")
 		<<QString::fromWCharArray(L"状态")<<QString::fromWCharArray(L"备注"); 
 	mainTableWidget->setHorizontalHeaderLabels(headers); 
-	mainTableWidget->setItem(0, 0, new QTableWidgetItem(QString("采集站 #1"))); 
-	mainTableWidget->setItem(1, 0, new QTableWidgetItem(QString("采集站 #1"))); 
-	mainTableWidget->setItem(2, 0, new QTableWidgetItem(QString("3"))); 
-	mainTableWidget->setItem(3, 0, new QTableWidgetItem(QString("4"))); 
-	mainTableWidget->setItem(4, 0, new QTableWidgetItem(QString("5"))); 
-	mainTableWidget->setItem(0, 1, new QTableWidgetItem(tr("20100112"))); 
+
+	initTableWidgetData();
 }
+
+
+/*==================================================================    
+ *    功能    ：   读取ini文件并初始化tableWidget
+ *    输入参数：
+ *    返回值    ： 
+ *    作者    ：   
+ *    日期    ：
+/*==================================================================*/
+void MainWindow::initTableWidgetData()
+{
+	QString note;
+	QTableWidgetItem *item;
+
+	int stations = Settings::readStationNum();
+	
+	for(int i = mainTableWidget->rowCount(); i < stations; ++i) {
+		mainTableWidget->insertRow(i);
+		item = new QTableWidgetItem(QString::fromWCharArray(L"采集站 #") + QString::number(i + 1, 10));
+		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		mainTableWidget->setItem(i, 0, item); 
+
+		unsigned int mask = Settings::readMask(i + 1);
+		int sensors = 0;
+		for(int j = 2;  j  <= SENSOR_TYPES + 1; ++j) {
+			item = new QTableWidgetItem("---");
+			//item = new QTableWidgetItem(QString::number(i , 10)+" A "+QString::number(j, 10));
+			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			if(mask & 0x01) {
+				++sensors;		
+			}else{		
+				item->setBackground(QBrush(QColor(35,202,255)));			
+			}
+			mainTableWidget->setItem(i, j, item); 
+			mask >>= 1;
+		}
+
+		//插入传感器数目
+		item = new QTableWidgetItem(QString::number(sensors, 10));
+		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		mainTableWidget->setItem(i, 1, item); 
+
+		//插入note
+		note = Settings::readNote(i + 1);
+		item = new QTableWidgetItem(note);
+		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		mainTableWidget->setItem(i, 8, item); 
+
+		//插入状态
+		item = new QTableWidgetItem();
+		item->setBackground(QBrush(Qt::green));
+		mainTableWidget->setItem(i, 7, item); 
+	}
+}
+
+MainWindow::~MainWindow()
+{
+
+}
+
 void MainWindow::initTreeWidget()
 {
-	mainDock=new QDockWidget(QString::fromWCharArray(L"监测与预警系统选项"),this);
-	mainDock->setFeatures(QDockWidget::DockWidgetMovable);  
-	mainDock->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);  
-	mainTreeWidget = new TreeWidget(mainDock);
-
 	QTreeWidgetItem *itemCollectionStation = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"采集站")));
 	itemCollectionStation->setIcon(0, QIcon("./img/01.png"));
 	mainTreeWidget->addTreeLeaf(itemCollectionStation,QString::fromWCharArray(L"采集站 #1"), TreeWidget::STATION);
@@ -84,9 +204,6 @@ void MainWindow::initTreeWidget()
 	mainTreeWidget->addTopLevelItem(itemCollectionStation);
 	itemCollectionStation->setExpanded(true);
 
-	
-
-
 	QTreeWidgetItem *itemDataDisplay = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"数据显示")));
 	itemDataDisplay->setIcon(0, QIcon("./img/02.png"));
 	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"数据动态显示"), TreeWidget::DATA_DYNAMIC_DISPLAY);
@@ -95,8 +212,6 @@ void MainWindow::initTreeWidget()
 	mainTreeWidget->addTreeLeaf(itemDataDisplay,QString::fromWCharArray(L"历史数据查询"), TreeWidget::DATA_QUERY);
 	mainTreeWidget->addTopLevelItem(itemDataDisplay);
 	itemDataDisplay->setExpanded(true);
-
-
 
 	QTreeWidgetItem *itemConfig = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"系统配置")));
 	itemConfig->setIcon(0, QIcon("./img/03.png"));
@@ -120,12 +235,5 @@ void MainWindow::initTreeWidget()
 	mainTreeWidget->addTreeLeaf(help,QString::fromWCharArray(L"帮助"), TreeWidget::HELP);
 	mainTreeWidget->addTopLevelItem(help);
 
-	mainDock->setWidget(mainTreeWidget);  
-	addDockWidget(Qt::LeftDockWidgetArea,mainDock); 
-
-	 connect(mainTreeWidget,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(acceptFromTreeWidget(QTreeWidgetItem*,int)));
-}
-MainWindow::~MainWindow()
-{
-
+	connect(mainTreeWidget,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(acceptFromTreeWidget(QTreeWidgetItem*,int)));
 }
