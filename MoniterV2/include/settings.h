@@ -15,7 +15,8 @@ public:
 	static  int  readLevel(int no, int sensor);//读取预警值
 	static QString readNote(int no); //读取备注
 	static QString readName(int no);//读取名字
-
+	static void setDataSouce(int type);
+	static int readDataSouce();
 private:
 	static QSettings *softConfig;
 

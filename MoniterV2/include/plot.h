@@ -24,6 +24,7 @@ public:
      \breif 根据串口数据更新存储
      \param index为索引，f为数据
     */
+private Q_SLOTS:
     void setDataByIndex(long , float f)
     {
         mutex.lock();
@@ -41,6 +42,7 @@ public:
       \breif 根据总线更新的时间来推动波形前进
       \param 当前总线时间
     */
+public:
     void setIndexByTime(long t)
     {
         if(mutex.tryLock())
@@ -63,10 +65,11 @@ public:
         for(int j = DISPLAY_POINT_NUM -1; j >= 0; --j)
             x[j] = t - j;
     }
+
      //!~ [2]
     void paintPlotByTime(long t);
     void setYLabel(const QString& title);
-private Q_SLOTS:
+
 /*!
 */
 private:

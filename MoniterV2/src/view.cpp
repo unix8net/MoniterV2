@@ -3,6 +3,8 @@
 TableView::TableView(QWidget * parent)
 	:QTableView(parent)
 {
+	
+	
 }
 
 void TableView::mouseMoveEvent(QMouseEvent * event)
@@ -13,6 +15,12 @@ void TableView::mouseMoveEvent(QMouseEvent * event)
 TableWidget::TableWidget(QWidget * parent)
 	:QTableWidget(parent)
 {
+	setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	verticalHeader()->setVisible(false);
+	setAlternatingRowColors(true);
+	QPalette pll = this->palette();
+	pll.setBrush(QPalette::Base,QBrush(QColor(255,255,255,0)));
+	this->setPalette(pll); 
 }
 
 void TableWidget::mouseMoveEvent(QMouseEvent * event)
@@ -28,6 +36,7 @@ TreeWidget::TreeWidget(QWidget * parent)
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	setColumnCount(1);
 	//setHorizontalScrollBarPolicy (Qt::ScrollBarAsNeeded);
+	
 	//this->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 	this->header()->setVisible(false);
 	connect(this,

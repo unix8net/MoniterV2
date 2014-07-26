@@ -1,11 +1,14 @@
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QBrush>
 
 #include "modifystation.h"
 #include "mainwindow.h"
 #include "../include/settings.h"
 #include "../include/global.h"
-
+#include "dataWidget.h"
+#include "./datasource.h"
+#include "./uartconfig.h"
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -19,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 	this->setAutoFillBackground(true);
 	QPalette palette;
 	palette.setColor(QPalette::Background, QColor(35,202,255));
+	//palette.setColor(QPalette::Background, Qt::white);
 	this->setPalette(palette);
 
 	mainTableWidget = new TableWidget(mainWidget);
@@ -26,10 +30,16 @@ MainWindow::MainWindow(QWidget *parent)
 	initTableWidget();
 	initTreeWidget();
 
-	hBoxLayout = new QHBoxLayout(mainWidget);
-	hBoxLayout->addWidget(mainTableWidget, 8);
+	dataWidget = new DataWidget(this);
+	QHBoxLayout *hBoxLayout = new QHBoxLayout(mainWidget);
+	QVBoxLayout *vHboxLayoout = new QVBoxLayout(mainWidget);
+	vHboxLayoout->addWidget(mainTableWidget,1);
+	vHboxLayoout->addWidget(dataWidget,3);
+	hBoxLayout->addLayout(vHboxLayoout, 8);
 	hBoxLayout->addWidget(mainTreeWidget, 1);
 	mainWidget->setLayout(hBoxLayout);
+
+
 }
 
 /*==================================================================    
@@ -65,7 +75,19 @@ void MainWindow::acceptFromTreeWidget(QTreeWidgetItem * item, int column)
 			modifyStation->show();
 			break;
 			}
+
+		case TreeWidget::DATA_SOURCE: {
+			DataSource *ds = new DataSource();
+			ds->show();
+			break;
+			}
+
+		case TreeWidget::CFG_UART: {
+			UartConfig *uart = new UartConfig(dataWidget->getSerialPort());
+			uart->show();
+			break;
 		}
+	}
 }
 
 /*==================================================================    
@@ -94,9 +116,10 @@ void MainWindow::updateTableItem(int index)
 		if(mask & 0x01) {
 			++sensors;
 			item->setBackground(QBrush(Qt::white));	
-		}else{		
-			item->setBackground(QBrush(QColor(35,202,255)));	
 			item->setText("---");
+		}else{		
+			item->setBackground(QBrush(QColor(255,192,203)));	
+			item->setText("X");
 		}
 		mask >>= 1;
 	}
@@ -106,7 +129,7 @@ void MainWindow::updateTableItem(int index)
 	item->setText(QString::number(sensors, 10));
 
 	//插入note
-	item = mainTableWidget->item(index - 1, 8);
+	item = mainTableWidget->item(index - 1, 7);
 	item->setText(Settings::readNote(index));
 }
 
@@ -128,7 +151,7 @@ void MainWindow::initTableWidget()
 	headers << QString::fromWCharArray(L"采集站名") <<QString::fromWCharArray(L"传感器数") << 
 		QString::fromWCharArray(L"倾角值") << QString::fromWCharArray(L"深层位移") <<QString::fromWCharArray(L"浅表位移")
 		<<QString::fromWCharArray(L"雨量值")<<QString::fromWCharArray(L"应力值")
-		<<QString::fromWCharArray(L"状态")<<QString::fromWCharArray(L"备注"); 
+		<<QString::fromWCharArray(L"备注")<<QString::fromWCharArray(L"预警"); 
 	mainTableWidget->setHorizontalHeaderLabels(headers); 
 
 	initTableWidgetData();
@@ -153,6 +176,7 @@ void MainWindow::initTableWidgetData()
 		mainTableWidget->insertRow(i);
 		item = new QTableWidgetItem(QString::fromWCharArray(L"采集站 #") + QString::number(i + 1, 10));
 		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		item->setBackground(QBrush(Qt::white));
 		mainTableWidget->setItem(i, 0, item); 
 
 		unsigned int mask = Settings::readMask(i + 1);
@@ -163,8 +187,10 @@ void MainWindow::initTableWidgetData()
 			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			if(mask & 0x01) {
 				++sensors;		
+				item->setBackground(QBrush(Qt::white));
 			}else{		
-				item->setBackground(QBrush(QColor(35,202,255)));			
+				item->setBackground(QBrush(QColor(255,192,203)));	
+				item->setText("X");
 			}
 			mainTableWidget->setItem(i, j, item); 
 			mask >>= 1;
@@ -173,18 +199,20 @@ void MainWindow::initTableWidgetData()
 		//插入传感器数目
 		item = new QTableWidgetItem(QString::number(sensors, 10));
 		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		item->setBackground(QBrush(Qt::white));
 		mainTableWidget->setItem(i, 1, item); 
 
 		//插入note
 		note = Settings::readNote(i + 1);
 		item = new QTableWidgetItem(note);
+		item->setBackground(QBrush(Qt::white));
 		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		mainTableWidget->setItem(i, 8, item); 
+		mainTableWidget->setItem(i, 7, item); 
 
 		//插入状态
 		item = new QTableWidgetItem();
 		item->setBackground(QBrush(Qt::green));
-		mainTableWidget->setItem(i, 7, item); 
+		mainTableWidget->setItem(i, 8, item); 
 	}
 }
 
@@ -222,18 +250,21 @@ void MainWindow::initTreeWidget()
 	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"配置文件设置"), TreeWidget::CFG_FILE);
 	mainTreeWidget->addTreeLeaf(itemConfig,QString::fromWCharArray(L"阈值设置"), TreeWidget::CFG_LEVEL);
 	mainTreeWidget->addTopLevelItem(itemConfig);
+	itemConfig->setExpanded(true);
 
 	QTreeWidgetItem *itemAlgorithm = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"数据处理")));
 	itemAlgorithm->setIcon(0, QIcon("./img/04.png"));
 	mainTreeWidget->addTreeLeaf(itemAlgorithm,QString::fromWCharArray(L"数据处理模型"), TreeWidget::ALGORITHM1);
 	mainTreeWidget->addTreeLeaf(itemAlgorithm,QString::fromWCharArray(L"数据处理算法"), TreeWidget::ALGORITHM1);
 	mainTreeWidget->addTopLevelItem(itemAlgorithm);
+	itemAlgorithm->setExpanded(true);
 
 	QTreeWidgetItem *help = new QTreeWidgetItem(QStringList(QString::fromWCharArray(L"关于与帮助")));
 	help->setIcon(0, QIcon("./img/help.png"));
 	mainTreeWidget->addTreeLeaf(help,QString::fromWCharArray(L"关于"), TreeWidget::ABOUT);
 	mainTreeWidget->addTreeLeaf(help,QString::fromWCharArray(L"帮助"), TreeWidget::HELP);
 	mainTreeWidget->addTopLevelItem(help);
+	help->setExpanded(true);
 
 	connect(mainTreeWidget,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(acceptFromTreeWidget(QTreeWidgetItem*,int)));
 }

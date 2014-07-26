@@ -2,30 +2,47 @@
 #include <QtWidgets/QApplication>
 #include <QtCore/QCoreApplication>
 //#include <QSplashScreen>
+#include <QtExtSerialPort/qextserialport.h>
 #include "../include/settings.h"
+
+#include "../include/plot.h"
+#include "dataWidget.h"
+#include "../include/timebus.h"
+#include "../include/taskthread.h"
+#include "../include/infowidget.h"
 int main(int argc, char *argv[])
 {
-	QCoreApplication::setOrganizationName("Moniter");
-	QCoreApplication::setOrganizationDomain("unix8.net");
-	QCoreApplication::setApplicationName("MoniterV2");
+	//QCoreApplication::setOrganizationName("Moniter");
+	//QCoreApplication::setOrganizationDomain("unix8.net");
+	//QCoreApplication::setApplicationName("MoniterV2");
 	QApplication a(argc, argv);
+
 	//QPixmap pixmap("./img/splashscreen.png");
 	//QSplashScreen *splash = new QSplashScreen(pixmap);
 	//splash->show();
-	MainWindow w;
+
+MainWindow w;
 	w.show();
+
 	//splash->finish(&w);
 	//delete splash;
-	/*
-	QSettings settings("cfg.ini",QSettings::IniFormat);
-	settings.beginGroup("Station");
-	settings.setValue("num", 100);
-	settings.setValue("sensor", 100);
-	settings.setValue("fullScreen", "test");
-	settings.endGroup();
 
-	*/
-	Settings::initConfigFile();
-	//Settings::addStation(1);
+	//Settings::initConfigFile();
+	/*
+	Plot *plot = new Plot();
+	plot->show();
+
+	
+	TimeBus timeBus;
+	SQLThread sqlthread;
+	QextSerialPort* serialPort;
+	{
+		//´®¿ÚÅäÖÃ
+		PortSettings settings = {BAUD9600, DATA_8, PAR_NONE, STOP_1, FLOW_OFF, 10};
+		//´®¿Ú
+		serialPort = new QextSerialPort("COM1", settings);
+	}
+	DataWidget dw(sqlthread,timeBus, serialPort);
+	dw.show();*/
 	return a.exec();
 }

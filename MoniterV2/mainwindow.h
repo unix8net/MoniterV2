@@ -10,6 +10,7 @@ class QDockWidget;
 class TreeWidget;
 class QTreeWidgetItem;
 class TableWidget;
+class DataWidget;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -20,14 +21,15 @@ public:
 
 private:
 	Ui::MainWindowClass ui;
-	QHBoxLayout *hBoxLayout;
 	//QDockWidget *mainDock;
 	TreeWidget *mainTreeWidget;
 	TableWidget *mainTableWidget;
+	DataWidget *dataWidget;
 	void initTreeWidget();
 	void initTableWidget();
 	void initTableWidgetData();
-	
+
+
 private Q_SLOTS:
 	void acceptFromTreeWidget(QTreeWidgetItem * item, int column);
 	void addNewTableItem();

@@ -129,3 +129,17 @@ void Settings::updateMaskAndNote(int no, unsigned int mask, QString &note)
 	softConfig->setValue("SN", note);
 	softConfig->endGroup();
 }
+
+void Settings::setDataSouce(int type)
+{
+	softConfig->beginGroup("DataSource");
+	softConfig->setValue("source", type); //sensor level
+	softConfig->endGroup();
+}
+int Settings::readDataSouce()
+{
+	softConfig->beginGroup("DataSource");
+	int value = softConfig->value("source", -1).toInt();
+	softConfig->endGroup();
+	return value;
+}
