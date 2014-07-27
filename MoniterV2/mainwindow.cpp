@@ -9,6 +9,10 @@
 #include "dataWidget.h"
 #include "./datasource.h"
 #include "./uartconfig.h"
+#include "./netconfig.h"
+#include "./sqlconfig.h"
+#include "./include/hled.h"
+#include "./include/hleds.h"
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -38,8 +42,35 @@ MainWindow::MainWindow(QWidget *parent)
 	hBoxLayout->addLayout(vHboxLayoout, 8);
 	hBoxLayout->addWidget(mainTreeWidget, 1);
 	mainWidget->setLayout(hBoxLayout);
+	statusBar()->setStyleSheet(QString("QStatusBar::item{border:0px}"));
+	for(int i = 0 ; i < N_LEDS; ++i)
+		led[i] = new HLed(this);
+	leds = new HLeds(this);
+	led[SOFT_SYSTEM_LED]->setHaveText(true);
+	led[SOFT_SYSTEM_LED]->setText(QString::fromWCharArray(L"软件系统"));
+	led[SOFT_SYSTEM_LED]->turnOn();
+	statusBar()->addWidget(led[SOFT_SYSTEM_LED], 1);
 
 
+	led[MYSQL_LED]->setHaveText(true);
+	led[MYSQL_LED]->setText(QString::fromWCharArray(L"MySQL数据库"));
+	led[MYSQL_LED]->turnOn();
+	statusBar()->addWidget(led[MYSQL_LED], 1);
+
+
+	led[TCPSERVER_LED]->setHaveText(true);
+	led[TCPSERVER_LED]->setText(QString::fromWCharArray(L"TCP服务器连接"));
+	led[TCPSERVER_LED]->turnOff();
+	statusBar()->addWidget(led[TCPSERVER_LED], 1);
+
+
+
+	led[UART_LED]->setHaveText(true);
+	led[UART_LED]->setText(QString::fromWCharArray(L"串口使用"));
+	led[UART_LED]->turnOff();
+	statusBar()->addWidget(led[UART_LED], 3);
+
+	statusBar()->addWidget(leds, 1);
 }
 
 /*==================================================================    
@@ -83,10 +114,20 @@ void MainWindow::acceptFromTreeWidget(QTreeWidgetItem * item, int column)
 			}
 
 		case TreeWidget::CFG_UART: {
-			UartConfig *uart = new UartConfig(dataWidget->getSerialPort());
+			UartConfig *uart = new UartConfig(dataWidget->getSerialPort(), this);
 			uart->show();
 			break;
 		}
+		case TreeWidget::CFG_NET: {
+			NetConfig *net = new NetConfig(dataWidget);
+			net->show();
+			break;
+		}
+		case TreeWidget::CFG_SQL: {
+			SqlConfig *sql = new SqlConfig(dataWidget);
+			sql->show();
+			break;
+								  }
 	}
 }
 
@@ -267,4 +308,8 @@ void MainWindow::initTreeWidget()
 	help->setExpanded(true);
 
 	connect(mainTreeWidget,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(acceptFromTreeWidget(QTreeWidgetItem*,int)));
+}
+void MainWindow::updateLeds()
+{
+	leds->incIndex();
 }

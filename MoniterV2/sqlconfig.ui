@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NetConfig</class>
- <widget class="QWidget" name="NetConfig">
+ <class>SqlConfig</class>
+ <widget class="QWidget" name="SqlConfig">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>365</height>
+    <width>651</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>NetConfig</string>
+   <string>SqlConfig</string>
   </property>
-  <widget class="QWidget" name="layoutWidget_2">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>110</y>
-     <width>581</width>
+     <y>70</y>
+     <width>631</width>
      <height>161</height>
     </rect>
    </property>
-   <layout class="QFormLayout" name="formLayout_3">
+   <layout class="QFormLayout" name="formLayout_2">
     <item row="0" column="0">
-     <widget class="QLabel" name="label_13">
+     <widget class="QLabel" name="label_8">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -33,12 +33,12 @@
        </font>
       </property>
       <property name="text">
-       <string>SERVER IP:</string>
+       <string>DBNAME:</string>
       </property>
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QLineEdit" name="serverip">
+     <widget class="QLineEdit" name="dbname">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -47,12 +47,12 @@
        </font>
       </property>
       <property name="text">
-       <string>175.154.94.251</string>
+       <string>sensordata</string>
       </property>
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QLabel" name="label_14">
+     <widget class="QLabel" name="label_9">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -61,12 +61,12 @@
        </font>
       </property>
       <property name="text">
-       <string>SERVER PORT:</string>
+       <string>USER:</string>
       </property>
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QLineEdit" name="serverport">
+     <widget class="QLineEdit" name="user">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -75,12 +75,12 @@
        </font>
       </property>
       <property name="text">
-       <string>3333</string>
+       <string>root</string>
       </property>
      </widget>
     </item>
     <item row="2" column="0">
-     <widget class="QLabel" name="label_15">
+     <widget class="QLabel" name="label_10">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -89,15 +89,12 @@
        </font>
       </property>
       <property name="text">
-       <string>LOCAL IP:</string>
+       <string>PASSWORD:</string>
       </property>
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="QLineEdit" name="localip">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
+     <widget class="QLineEdit" name="password">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -106,12 +103,12 @@
        </font>
       </property>
       <property name="text">
-       <string>127.0.0.1</string>
+       <string>778855</string>
       </property>
      </widget>
     </item>
     <item row="3" column="0">
-     <widget class="QLabel" name="label_16">
+     <widget class="QLabel" name="label_11">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -120,15 +117,12 @@
        </font>
       </property>
       <property name="text">
-       <string>LOCAL HOST:</string>
+       <string>HOSTNAME:</string>
       </property>
      </widget>
     </item>
     <item row="3" column="1">
-     <widget class="QLineEdit" name="localmac">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
+     <widget class="QLineEdit" name="hostname">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -137,12 +131,12 @@
        </font>
       </property>
       <property name="text">
-       <string>INVALIED</string>
+       <string>localhost</string>
       </property>
      </widget>
     </item>
     <item row="4" column="0">
-     <widget class="QLabel" name="label_17">
+     <widget class="QLabel" name="label_12">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -151,12 +145,12 @@
        </font>
       </property>
       <property name="text">
-       <string>PROTOCOL:</string>
+       <string>PORT:</string>
       </property>
      </widget>
     </item>
     <item row="4" column="1">
-     <widget class="QComboBox" name="stopBitsBox_2">
+     <widget class="QLineEdit" name="port">
       <property name="font">
        <font>
         <family>微软雅黑</family>
@@ -164,39 +158,32 @@
         <bold>true</bold>
        </font>
       </property>
-      <item>
-       <property name="text">
-        <string>TCP</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>UDP</string>
-       </property>
-      </item>
+      <property name="text">
+       <string>3306</string>
+      </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>30</y>
-     <width>531</width>
-     <height>51</height>
+     <x>20</x>
+     <y>10</y>
+     <width>621</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>微软雅黑</family>
-     <pointsize>36</pointsize>
+     <pointsize>24</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
    <property name="text">
-    <string>网络配置页</string>
+    <string>MySQL数据库配置页面</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -205,10 +192,10 @@
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>14</x>
-     <y>292</y>
-     <width>581</width>
-     <height>61</height>
+     <x>10</x>
+     <y>245</y>
+     <width>631</width>
+     <height>41</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -217,13 +204,13 @@
       <property name="font">
        <font>
         <family>微软雅黑</family>
-        <pointsize>18</pointsize>
+        <pointsize>14</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
       <property name="text">
-       <string>确定并连接到服务器</string>
+       <string>确定</string>
       </property>
      </widget>
     </item>
@@ -232,13 +219,13 @@
       <property name="font">
        <font>
         <family>微软雅黑</family>
-        <pointsize>18</pointsize>
+        <pointsize>14</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
       <property name="text">
-       <string>取消本次操作</string>
+       <string>取消</string>
       </property>
      </widget>
     </item>
@@ -251,16 +238,16 @@
   <connection>
    <sender>pushButton_2</sender>
    <signal>clicked()</signal>
-   <receiver>NetConfig</receiver>
+   <receiver>SqlConfig</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>450</x>
-     <y>322</y>
+     <x>484</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>299</x>
-     <y>182</y>
+     <x>325</x>
+     <y>149</y>
     </hint>
    </hints>
   </connection>

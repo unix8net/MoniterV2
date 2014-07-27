@@ -3,6 +3,8 @@
 #include <QtExtSerialPort/qextserialenumerator.h>
 #include "./gomessage.h"
 #include "../include/settings.h"
+#include "mainwindow.h"
+#include "../include/hled.h"
 UartConfig::UartConfig(QextSerialPort *tport, QWidget *parent)
 	: port(tport), QWidget(parent)
 {
@@ -121,6 +123,7 @@ void UartConfig::ok()
 	if (!port->isOpen()) {
 		port->setPortName(ui->portBox->currentText());
 		if(port->open(QIODevice::ReadOnly)){
+			(static_cast<MainWindow*>(parent())->led[MainWindow::UART_LED])->turnOn();
 			this->close();
 		}
 		else{

@@ -11,12 +11,13 @@
 #include "./gomessage.h"
 #include "../include/taskthread.h"
 #include "dataWidget.h"
-
+#include "mainwindow.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-
-DataWidget::DataWidget(QWidget *parent):
-    QWidget(parent), circularQueue(MAX_SPACE)
+#include "./include/hled.h"
+#include "./include/hleds.h"
+DataWidget::DataWidget(QWidget *parent)
+	: QWidget(parent), circularQueue(MAX_SPACE)
 {
 	setWindowFlags(Qt::Window | Qt::FramelessWindowHint
 		| Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint
@@ -74,6 +75,7 @@ DataWidget::DataWidget(QWidget *parent):
     connect(&tcpSocket, SIGNAL(readyRead()),this, SLOT(onNetReadyRead()));
     connect(&tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(haveError()));
 
+	connect(this, SIGNAL(updateLeds()), this->parent(), SLOT(updateLeds()));
 	//启动时间总线
 	timeBus.start();
 	//启动数据库执行线程
@@ -102,6 +104,8 @@ void DataWidget::updateUI(long t)
             QTimer::singleShot(0, this, SLOT(resetConnectServer()));
         }
     }
+	if(netCheckCount % 5 == 0)
+		emit updateLeds();
 }
 
 /*==================================================================    
@@ -152,7 +156,7 @@ void DataWidget::socketConnected()
     socketFlag = QAbstractSocket ::ConnectedState;
     goMessage * mess = new goMessage(QString::fromWCharArray(L"连接服务器端成功!"), 2000, this);
     mess->show();
-  //  led[TCPSERVER_LED]->turnOn();
+	(static_cast<MainWindow*>(parent())->led[MainWindow::TCPSERVER_LED])->turnOn();
 }
 
 
@@ -167,6 +171,7 @@ void DataWidget::socketDisconnected()
     goMessage * mess = new goMessage(QString::fromWCharArray(L"服务器断开连接，系统将重启TCP连接!"), 2000, this);
     mess->show();
    // led[TCPSERVER_LED]->turnOff();
+	(static_cast<MainWindow*>(parent())->led[MainWindow::TCPSERVER_LED])->turnOff();
     tcpSocket.close();
 }
 
@@ -180,7 +185,7 @@ void DataWidget::haveError()
     socketFlag = QAbstractSocket::UnconnectedState;
     goMessage * mess = new goMessage(QString::fromWCharArray(L"网络异常，不能接收到网络数据!"), 3000, this);
     mess->show();
- //   led[TCPSERVER_LED]->haveError();
+	(static_cast<MainWindow*>(parent())->led[MainWindow::TCPSERVER_LED])->haveError();
     tcpSocket.close();
 }
 
@@ -234,6 +239,8 @@ DataWidget::~DataWidget()
 void DataWidget::sqlErrorInfo(const QString &)
 {
     //led[MYSQL_LED]->turnOff();
+	(static_cast<MainWindow*>(parent())->led[MainWindow::MYSQL_LED])->turnOff();
+
 }
 
 void DataWidget::closeEvent(QCloseEvent *)

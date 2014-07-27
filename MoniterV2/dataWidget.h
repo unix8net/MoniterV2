@@ -23,6 +23,7 @@ class HLed;
 class HLeds;
 class Plot;
 class Producer;
+
 QT_END_NAMESPACE
 
 #define MAX_SPACE 256
@@ -55,8 +56,9 @@ public:
     //不使用串口
     void dontUseNet();
 	QextSerialPort* getSerialPort(){return serialPort;}
+	int getSocketFlag(){return socketFlag;}
+	SQLThread& getSqlThread(){return sqlthread;}
 private:
-
 	TimeBus timeBus;
 	SQLThread sqlthread;
 	Producer *dataProducer;
@@ -120,6 +122,7 @@ Q_SIGNALS:
      void sendDataToDeep(long t, float data);
      void sendDataToAngle(long t, float data);
      void sendDataToStress(long t, float data);
+	 void updateLeds();
 };
 
 

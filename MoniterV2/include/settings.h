@@ -17,7 +17,6 @@ public:
 	static QString readName(int no);//¶ÁÈ¡Ãû×Ö
 	static void setDataSouce(int type);
 	static int readDataSouce();
-private:
 	static QSettings *softConfig;
 
 };
